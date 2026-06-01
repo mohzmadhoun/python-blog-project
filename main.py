@@ -81,7 +81,8 @@ instance_dir.mkdir(parents=True, exist_ok=True)
 db_name = os.environ.get("DB_NAME", "posts.db")
 db_path = instance_dir / db_name
 db_engine = os.environ.get("DB_ENGINE", "sqlite")
-app.config["SQLALCHEMY_DATABASE_URI"] = f"{db_engine}:///{db_path}"
+db_uri = os.environ.get("DB_URI", f"{db_engine}:///{db_path}")
+app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
