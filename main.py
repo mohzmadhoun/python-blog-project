@@ -10,6 +10,8 @@ from sqlalchemy import Integer, String, Text
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
+import os
+from pathlib import Path
 # Optional: add contact me email functionality (Day 60)
 # import smtplib
 
@@ -29,7 +31,7 @@ This will install the packages from the requirements.txt for this project.
 
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "8BYkEfBA6O6donzWlSihBXox7C0sKR6b"
+app.config["SECRET_KEY"] = os.environ.get("FLASK_KEY")
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 
@@ -61,7 +63,13 @@ class Base(DeclarativeBase):
     pass
 
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///posts.db"
+basedir = Path(__file__).resolve().parent
+instance_dir = basedir / "instance"
+instance_dir.mkdir(parents=True, exist_ok=True)
+db_name = os.environ.get("DB_NAME", "posts.db")
+db_path = instance_dir / db_name
+db_engine = os.environ.get("DB_ENGINE", "sqlite")
+app.config["SQLALCHEMY_DATABASE_URI"] = f"{db_engine}:///{db_path}"
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
@@ -310,4 +318,4 @@ def contact():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    app.run(debug=False, port=5001)
